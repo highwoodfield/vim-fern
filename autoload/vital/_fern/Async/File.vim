@@ -23,11 +23,16 @@ if executable('rundll32')
   endfunction
   function! s:open(filename, ...) abort
     let options = copy(a:0 ? a:1 : {})
-    let filename = fnamemodify(substitute(a:filename, '[/\\]\+', '\', 'g'), ':p')
+    let filename = substitute(fnamemodify(a:filename, ':p'), '[/\\]\+', '\', 'g')
+    " somehow you have to execute 'rundll32' inside a command prompt to the
+    " GUI to show up.
     return s:Process.start([
+          \ 'cmd',
+          \ '/c',
+          \ 'start',
           \ 'rundll32',
           \ 'url.dll,FileProtocolHandler',
-          \ filename,
+          \ filename
           \], options)
           \.then({ r -> s:_iconv_result(r) })
           \.catch({ e -> s:_iconv_result(e) })
